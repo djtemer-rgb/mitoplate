@@ -1,0 +1,1557 @@
+<!doctype html>
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Собери тарелку для митохондрий</title>
+    <style>
+        :root {
+            /* --- PALETTE (from 8-1.html) --- */
+            --primary: #2A4849;
+            --primary-soft: #e0f2f1;
+            --accent: #FF8A65;
+            --accent-glow: rgba(255, 138, 101, 0.4);
+
+            --bg-page: #F7F9FC;
+            --bg-card: #FFFFFF;
+            --bg-card-glass: rgba(255, 255, 255, 0.85);
+            /* fallback */
+            --bg-card-glass: rgba(255, 255, 255, 0.9);
+
+            --text: #2C3E50;
+            --muted: #7F8C8D;
+            --border: #E0E6ED;
+
+            /* --- PIE COLORS (from 8-1.html) --- */
+            --col-protein: #FF6B6B;
+            --col-fats: #FDCB6E;
+            --col-carbs: #55EFC4;
+            --col-veg: #74B9FF;
+
+            /* --- COMPONENT VARS (Legacy 8.html adapted) --- */
+            --chip: rgba(0, 0, 0, .03);
+            --chipOn: var(--primary);
+            --interactive-hover: rgba(0, 0, 0, 0.05);
+            --interactive-active: var(--primary);
+            --radius: 20px;
+            --shadow: 0 10px 40px rgba(0, 50, 100, 0.08);
+            --trans: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-page);
+            background-image:
+                radial-gradient(at 10% 10%, rgba(85, 239, 196, 0.15) 0px, transparent 50%),
+                radial-gradient(at 90% 90%, rgba(255, 107, 107, 0.1) 0px, transparent 50%);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+
+        .wrap {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 24px 20px;
+        }
+
+        /* --- HEADER & BUTTONS (8-1 Design) --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .title {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 760px;
+        }
+
+        h1 {
+            font-weight: 800;
+            font-size: 28px;
+            margin: 0 0 8px 0;
+            background: linear-gradient(135deg, var(--primary) 0%, #3498DB 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .sub {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .btns {
+            display: flex;
+            gap: 12px;
+        }
+
+        button {
+            border: none;
+            background: var(--bg-card);
+            color: var(--text);
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: var(--trans);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        button:active {
+            transform: scale(0.96);
+        }
+
+        button.primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 8px 20px rgba(42, 72, 73, 0.25);
+        }
+
+        button.primary:hover {
+            box-shadow: 0 12px 30px rgba(42, 72, 73, 0.35);
+        }
+
+        /* --- LAYOUT GRID --- */
+        .grid {
+            display: grid;
+            grid-template-columns: 2.2fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 980px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--bg-card-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            margin-bottom: 20px;
+            transition: var(--trans);
+        }
+
+        .card:hover {
+            box-shadow: 0 20px 50px rgba(0, 50, 100, 0.12);
+        }
+
+        .card .hd {
+            padding: 0 0 16px 0;
+        }
+
+        .card .ct {
+            padding: 0;
+        }
+
+        h2 {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 0 6px 0;
+            color: var(--primary);
+        }
+
+        /* --- TABS (8-1 Design) --- */
+        .tabs {
+            background: rgba(0, 0, 0, 0.03);
+            padding: 6px;
+            border-radius: 12px;
+            display: flex;
+            gap: 6px;
+            margin-bottom: 24px;
+        }
+
+        button.tab {
+            flex: 1;
+            background: transparent;
+            box-shadow: none;
+            color: var(--muted);
+            padding: 10px;
+            border-radius: 8px;
+            justify-content: center;
+        }
+
+        button.tab:hover {
+            transform: none;
+            background: rgba(255, 255, 255, 0.5);
+            color: var(--text);
+        }
+
+        button.tab.active {
+            background: #fff;
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            font-weight: 800;
+        }
+
+        .tabpane {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tabpane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- LEGACY COMPONENT STYLES (from 8.html logic) --- */
+        .two {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 760px) {
+            .two {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* RenderSliders specific (generated HTML) */
+        .field {
+            margin: 16px 0 20px;
+        }
+
+        .field .top {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .field .name {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .field .name strong {
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        .hint {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.3;
+        }
+
+        .sl {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            background: transparent;
+            z-index: 2;
+            height: 32px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            margin-top: -10px;
+            border: 2px solid var(--primary);
+            transition: transform 0.1s;
+        }
+
+        input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 2px;
+        }
+
+        input[type="number"],
+        select {
+            border-radius: 12px;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 14px;
+            width: 100%;
+            font-family: inherit;
+            transition: var(--trans);
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-soft);
+        }
+
+        input[type="number"] {
+            width: 80px;
+            text-align: center;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 700;
+            background: rgba(0, 0, 0, 0.04);
+            color: var(--text);
+            margin-left: 6px;
+        }
+
+        .badge.soft {
+            background: var(--primary-soft);
+            color: var(--primary);
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .sep {
+            height: 1px;
+            background: var(--border);
+            margin: 24px 0;
+        }
+
+        /* Carb Switch */
+        .switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: space-between;
+            background: rgba(85, 239, 196, 0.1);
+            padding: 16px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .switch input {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Chips */
+        .chips {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .chip {
+            padding: 8px 14px;
+            border-radius: 50px;
+            border: 1px solid transparent;
+            background: rgba(0, 0, 0, 0.03);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: var(--trans);
+            user-select: none;
+        }
+
+        .chip:hover {
+            background: rgba(0, 0, 0, 0.07);
+        }
+
+        .chip.on {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(42, 72, 73, 0.3);
+        }
+
+        /* Note / List */
+        .list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .note {
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 16px;
+            padding: 14px;
+        }
+
+        .note .t {
+            font-weight: 800;
+            font-size: 14px;
+            color: var(--primary);
+        }
+
+        .note p {
+            margin: 4px 0 0;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .note-clickable {
+            cursor: pointer;
+            transition: var(--trans);
+        }
+
+        .note-clickable:hover {
+            background: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .note-clickable.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 8px 16px rgba(42, 72, 73, 0.2);
+        }
+
+        .note-clickable.active .t,
+        .note-clickable.active p {
+            color: #fff;
+        }
+
+        /* Pie styling from 8.html JS uses internal style setting, but container needs CSS */
+        .pieWrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .pie {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            position: relative;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, 0.1),
+                /* Outer drop shadow for depth */
+                inset 0 0 0 12px rgba(0, 0, 0, .08);
+            /* The requested marginal rim */
+            /* background set by JS */
+            margin: 0 auto;
+            /* Center it */
+        }
+
+        .legend .it {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.02);
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .legend .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 10px;
+            display: inline-block;
+        }
+
+        /* Stats / Progress */
+        .kpi {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .kpi .box {
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .kpi .v {
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--primary);
+        }
+
+        .progress {
+            height: 10px;
+            border-radius: 10px;
+            background: #e0e0e0;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .bar {
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.5s ease;
+        }
+
+        /* Profile Grid */
+        .profileGrid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .profileGrid .box {
+            background: var(--primary-soft);
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .profileGrid .t {
+            font-size: 12px;
+            color: var(--primary);
+            opacity: 0.8;
+        }
+
+        .profileGrid .v {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-top: 4px;
+        }
+
+        .formGrid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .formRow {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .formField label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .formField small {
+            font-size: 11px;
+            color: var(--muted);
+            display: block;
+            margin-top: 4px;
+        }
+
+        /* CUSTOM ACTIVTY DROPDOWN (8.html) */
+        .act-wrap {
+            position: relative;
+            width: 100%;
+        }
+
+        .act-trigger {
+            border-radius: 12px;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .act-trigger:hover {
+            border-color: var(--primary);
+        }
+
+        .act-trigger::after {
+            content: '▼';
+            font-size: 10px;
+            opacity: 0.5;
+        }
+
+        .act-options {
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .act-options.show {
+            display: block;
+        }
+
+        .act-item {
+            padding: 10px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .act-item:hover {
+            background: var(--primary-soft);
+        }
+
+        .act-item.selected {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .act-item-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        /* Tooltip logic simplified/cleaned from 8.html */
+        .act-tooltip {
+            position: absolute;
+            left: 50%;
+            bottom: 100%;
+            transform: translateX(-50%) translateY(-10px);
+            width: 250px;
+            background: #111;
+            color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 2000;
+        }
+
+        .act-item:hover .act-tooltip,
+        .act-trigger:hover .act-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* History Items */
+        .history-item {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .h-date {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+
+        .h-score {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: #111;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 50px;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 3000;
+            font-weight: 600;
+            pointer-events: none;
+        }
+
+        .toast.visible {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            margin: 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <header>
+            <div class="title">
+                <h1>Собери тарелку для митохондрий</h1>
+                <div class="sub">Мини-игра и учебный тренажёр: соберите приём пищи, который поддерживает выработку
+                    энергии (АТФ), снижает воспаление и помогает гормональному балансу.<br>
+                    Создано в рамках марафона — Женская Энергия. От доктора Алимирзаевой Лейлы.</div>
+            </div>
+            <div class="btns">
+                <button id="resetBtn" title="Сброс" style="color:red; background:rgba(255,0,0,0.05)">↺ Сброс</button>
+                <button id="copyBtn" title="Скопировать отчет">📋 Копия</button>
+                <button class="primary" id="saveBtn" title="Сохранить в историю">💾 Сохранить</button>
+            </div>
+        </header>
+
+        <div class="grid">
+            <!-- LEFT PANEL -->
+            <div class="card">
+                <div class="tabs">
+                    <button class="tab active" data-tab="build">Конструктор</button>
+                    <button class="tab" data-tab="mind">Осознанность</button>
+                    <button class="tab" data-tab="review">Оценка</button>
+                    <button class="tab" data-tab="history">История</button>
+                </div>
+
+                <div class="ct">
+                    <!-- 1. BUILD -->
+                    <div class="tabpane active" id="tab-build">
+                        <div class="two">
+                            <div style="padding-top:10px">
+                                <div style="margin-bottom:12px">
+                                    <h2 style="font-size:16px">Секторы тарелки</h2>
+                                    <p class="hint">Настройте пропорции.</p>
+                                </div>
+                                <div id="sliders"></div>
+                            </div>
+                            <div>
+                                <div style="margin-bottom:12px">
+                                    <h2 style="font-size:16px">Визуализация</h2>
+                                </div>
+                                <div class="pieWrap">
+                                    <div class="pie" id="pie"></div>
+                                </div>
+                                <div class="legend" id="legend"></div>
+                            </div>
+                        </div>
+                        <div class="sep"></div>
+                        <div class="two" id="pickers"></div>
+                    </div>
+
+                    <!-- 2. MIND -->
+                    <div class="tabpane" id="tab-mind">
+                        <div class="card" style="box-shadow:none; border:none; background:transparent">
+                            <div class="hd" style="padding:0; margin-bottom:16px">
+                                <h2>Бонус-уровень: осознанность</h2>
+                                <p style="color:var(--muted); font-size:14px; margin-top:6px; line-height:1.4">
+                                    Митохондрии чувствительны не только к еде, но и к кортизолу. Отметьте, как вы
+                                    планируете есть этот приём пищи.</p>
+                            </div>
+                            <div id="mindBox" class="list"></div>
+                        </div>
+                    </div>
+
+                    <!-- 3. REVIEW -->
+                    <div class="tabpane" id="tab-review">
+                        <h2>Оценка и Анализ</h2>
+                        <div class="two">
+                            <div>
+                                <div class="row" style="margin-bottom:10px">
+                                    <div class="muted">Итоговый балл</div>
+                                    <div style="font-weight:900; font-size:24px; color:var(--primary)"
+                                        id="overallScore">0/100</div>
+                                </div>
+                                <div class="progress" style="height:12px">
+                                    <div class="bar" id="overallBar"></div>
+                                </div>
+
+                                <div class="kpi">
+                                    <div class="box">
+                                        <div class="t">Баланс</div>
+                                        <div class="v" id="balanceScore">0</div>
+                                    </div>
+                                    <div class="box">
+                                        <div class="t">Полнота</div>
+                                        <div class="v" id="completeScore">0</div>
+                                    </div>
+                                </div>
+                                <div class="sep"></div>
+                                <div id="checklist"></div>
+                            </div>
+
+                            <div>
+                                <div id="issues" class="list"></div>
+                                <div class="sep"></div>
+                                <div class="note" style="border:none; background:var(--primary-soft)">
+                                    <div class="t">Результат для копирования</div>
+                                    <div
+                                        style="margin-top:10px; background:rgba(255,255,255,0.6); padding:10px; border-radius:10px">
+                                        <pre id="summary"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. HISTORY -->
+                    <div class="tabpane" id="tab-history">
+                        <div class="row" style="margin-bottom:20px">
+                            <h2>История приемов</h2>
+                            <button id="clearHistBtn"
+                                style="font-size:12px; padding:6px 12px; color:red; background:rgba(255,0,0,0.1)">Очистить</button>
+                        </div>
+                        <div id="history-container" class="list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL (PROFILE) -->
+            <div class="right" style="position:relative">
+                <div style="position: absolute; right: 0; top: -140px; pointer-events: none; z-index: 0;">
+                    <img src="../MitoPlate/logo.png" alt="Logo" style="max-height: 160px; width: auto; opacity: 0.95;">
+                </div>
+                <div class="card">
+                    <div class="hd">
+                        <h2>Ваш профиль</h2>
+                        <p class="hint">Заполните для расчета норм.</p>
+                    </div>
+                    <div class="ct">
+                        <div class="formGrid">
+                            <div class="formField">
+                                <label for="sex">Пол</label>
+                                <select id="sex">
+                                    <option value="female">Женщина</option>
+                                    <option value="male">Мужчина</option>
+                                </select>
+                            </div>
+                            <div class="formRow">
+                                <div class="formField"><label>Возраст</label><input id="age" type="number" min="14"
+                                        max="99" value="30"></div>
+                                <div class="formField"><label>Рост (см)</label><input id="height" type="number"
+                                        min="100" max="230" value="165"></div>
+                            </div>
+                            <div class="formRow">
+                                <div class="formField"><label>Вес (кг)</label><input id="weight" type="number" min="30"
+                                        max="200" value="65"></div>
+                                <div class="formField">
+                                    <label>Активность</label>
+                                    <div class="act-wrap">
+                                        <div class="act-trigger" id="actTrigger">1.35</div>
+                                        <div class="act-options" id="actOptions"></div>
+                                        <input type="hidden" id="activity" value="1.35">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="profileGrid">
+                            <div class="box">
+                                <div class="t">ИМТ</div>
+                                <div class="v" id="bmiOut">-</div>
+                            </div>
+                            <div class="box">
+                                <div class="t">Поддержание</div>
+                                <div class="v" id="kMaintOut">-</div>
+                            </div>
+                        </div>
+
+                        <div class="note" style="margin-top:20px; border:none; background:var(--bg-page)">
+                            <div class="t">Нормы в сутки (оценка)</div>
+                            <pre id="macroText" style="margin-top:8px; font-size:11.5px; opacity:0.8"></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info cards from 8.html -->
+                <div class="card" style="margin-top:20px">
+                    <div class="hd">
+                        <h2>Как играть</h2>
+                    </div>
+                    <div class="ct" style="font-size:13px;line-height:1.45;color:rgba(0, 0, 0, 0.947)">
+                        <div class="note">
+                            <div class="t">1) База</div>
+                            <p><b>Белок + Жиры + Овощи</b> — базовая «митохондриальная тройка».</p>
+                        </div>
+                        <div class="note" style="margin-top:10px">
+                            <div class="t">2) Ключ</div>
+                            <p>Добавьте <b>микроэлементы</b> (зелень/лимон/ферменты) — это «ключ запуска» реакций.</p>
+                        </div>
+                        <div class="note" style="margin-top:10px">
+                            <div class="t">3) Углеводы</div>
+                            <p>Включите режим «по потребности», если есть стресс/активность/истощение/холод.</p>
+                        </div>
+                        <div class="note" style="margin-top:10px">
+                            <div class="t">4) Осознанность</div>
+                            <p>Отметьте 2 из 3 пунктов — это помогает снижать кортизол.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top:20px; border:1px solid #ffebee; background:#fff5f5">
+                    <h2 style="font-size:16px; color:#c62828">Дисклеймер</h2>
+                    <div style="font-size:11.5px; line-height:1.45; color:var(--muted)">
+                        Приложение носит образовательный характер и не заменяет консультацию врача. При заболеваниях
+                        ЖКТ, эндокринных нарушениях и беременности адаптируйте питание вместе со специалистом.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="toast" class="toast">Сообщение</div>
+    </div>
+
+    <script>
+        // --- DATA & LOGIC FROM 8.HTML ---
+
+        function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
+        function inRange(v, min, max) { return v >= min && v <= max; }
+        function plural(n, one, few, many) {
+            const mod10 = n % 10, mod100 = n % 100;
+            if (mod10 === 1 && mod100 !== 11) return one;
+            if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return few;
+            return many;
+        }
+        function uniq(arr) {
+            const seen = new Set(); const out = [];
+            for (const x of arr) {
+                const key = String(x).trim().toLowerCase();
+                if (!seen.has(key)) { seen.add(key); out.push(x); }
+            }
+            return out;
+        }
+
+        // Calculations
+        function pkFromBMI(bmi, sex) {
+            let pk = 0;
+            if (sex === "female") {
+                if (bmi < 26) pk = 0; else if (bmi < 30) pk = 0.05; else if (bmi < 35) pk = 0.10; else if (bmi < 40) pk = 0.15; else pk = 0.20;
+            } else {
+                if (bmi < 27) pk = 0; if (bmi >= 26) pk = 0.05; if (bmi >= 30) pk = 0.10; if (bmi >= 35) pk = 0.15; if (bmi > 40) pk = 0.20;
+            }
+            return pk;
+        }
+        function calcKBJU({ W, H, Age, Act, Sex }) {
+            const Hm = H * 0.01; const BMI = Math.round(W / (Hm * Hm)); const pk = pkFromBMI(BMI, Sex);
+            let BMR_raw = (Sex === "female") ? 655 + 9.6 * W + 1.8 * H - 4.7 * Age : 65 + 13.7 * W + 5 * H - 6.8 * Age;
+            const BMR = Math.round(BMR_raw * (1 - pk));
+            const K_maint = Math.round(BMR * Act);
+            const K_from = Math.round(K_maint * 0.8), K_to = Math.round(K_maint * 0.85), K_hunger = Math.round(K_maint * 0.9);
+            const P_from = Math.round((K_from * 0.25) / 4), P_to = Math.round((K_hunger * 0.30) / 4);
+            const F_from = Math.round((K_from * 0.30) / 9), F_to = Math.round((K_hunger * 0.35) / 9);
+            const C_from = Math.round((K_from * 0.35) / 4), C_to = Math.round((K_hunger * 0.40) / 4);
+            return { BMI, BMR, K_maint, K_from, K_to, K_hunger, P_from, P_to, F_from, F_to, C_from, C_to };
+        }
+        function bmiLabel(bmi) {
+            if (bmi < 18) return "Дефицит"; if (bmi < 25) return "Норма"; if (bmi < 30) return "Избыток";
+            if (bmi < 35) return "Ожирение I"; if (bmi < 40) return "Ожирение II"; return "Ожирение III";
+        }
+
+        // --- CONSTANTS ---
+        // ---------- DATA ----------
+        const EXTRA_PROTEIN = [
+            "Куриная грудка",
+            "Тунец",
+            "Лосось",
+            "Сардины",
+            "Творог (5–9%)",
+            "Греческий йогурт",
+            "Сыр твёрдый",
+            "Чечевица",
+            "Нут",
+            "Фасоль",
+            "Тофу",
+            "Темпе",
+            "Киноа",
+            "Гречка",
+            "Тыквенные семечки",
+            "Арахис",
+            "Миндаль"
+        ];
+
+        const EXTRA_FATS = [
+            "Кокосовое масло",
+            "Маслины / оливки",
+            "Орехи макадамия",
+            "Грецкие орехи",
+            "Миндаль",
+            "Кешью",
+            "Арахис",
+            "Семена тыквы",
+            "Сало",
+            "Сливочное масло",
+            "Топлёное масло (гхи)",
+            "Жирная говядина",
+            "Бекон",
+            "Лосось",
+            "Скумбрия",
+            "Сардины",
+            "Сливки 30–35%",
+            "Сыр твёрдый"
+        ];
+
+        const EXTRA_CARBS = [
+            "Рис белый",
+            "Рис бурый",
+            "Пшено",
+            "Овсяные хлопья",
+            "Гречка",
+            "Киноа",
+            "Манка",
+            "Хлеб пшеничный",
+            "Хлеб цельнозерновой",
+            "Макароны",
+            "Лаваш",
+            "Картофель",
+            "Батат",
+            "Кукуруза",
+            "Банан",
+            "Виноград",
+            "Манго",
+            "Финики свежие",
+            "Изюм",
+            "Мёд"
+        ];
+
+        const CATEGORIES = {
+            protein: {
+                key: "protein",
+                title: "Белок — «Строитель»",
+                hint: "Аминокислоты → ферменты → синтез АТФ → гормоны",
+                options: uniq([
+                    "Яйца", "Рыба", "Индейка", "Курица", "Говядина",
+                    "Бобовые (по переносимости)",
+                    "Творог/йогурт без сахара"
+                ].concat(EXTRA_PROTEIN)),
+            },
+            fats: {
+                key: "fats",
+                title: "Жиры — «Топливо»",
+                hint: "Жиры — ключевое топливо; дефицит → гормональные сбои",
+                options: uniq([
+                    "Оливковое масло extra virgin", "Авокадо", "Орехи", "Семена (льняные/тыквенные/подсолнечник)",
+                    "Сливочное масло (умеренно)", "Оливки"
+                ].concat(EXTRA_FATS)),
+            },
+            veg: {
+                key: "veg",
+                title: "Овощи — «Защита»",
+                hint: "Антиоксиданты защищают митохондрии и снижают воспаление",
+                options: uniq([
+                    "Зелёные: шпинат/брокколи/салат",
+                    "Яркие: морковь/тыква/свёкла",
+                    "Нейтральные: кабачок/цветная капуста",
+                    "Огурцы",
+                    "Квашеные овощи",
+                    "Зелень: укроп/петрушка/кинза"
+                ]),
+                targetStatic: { min: 120, max: 150 }
+            },
+            carbs: {
+                key: "carbs",
+                title: "Углеводы — «Регулятор» (по потребности)",
+                hint: "Добавляйте при активности/стрессе/истощении — иначе может расти кортизол",
+                options: uniq([
+                    "Гречка", "Киноа", "Бурый рис", "Овёс (цельный)", "Ягоды", "Запечённый батат"
+                ].concat(EXTRA_CARBS)),
+            },
+            micro: {
+                key: "micro",
+                title: "Микроэлементы — «Ключ запуска»",
+                hint: "Калий/магний/натрий и кислоты — кофакторы энергетических реакций",
+                options: uniq(["Зелень", "Морская соль (умеренно)", "Ферментированные продукты", "Лимонный сок", "Яблочный уксус", "Минеральная вода"]),
+            },
+        };
+        const QUESTIONS = [
+            "Я ем в спокойствии (не на бегу)",
+            "Я тщательно жую (не глотаю кусками)",
+            "Я чувствую вкус (без гаджетов)"
+        ];
+        // Custom Act Data
+        const ACT_DATA = [
+            { v: "1.2", t: "[1.2] Мин. активность (офис)" },
+            { v: "1.375", t: "[1.375] Слабая (1-3 трен/нед)" },
+            { v: "1.55", t: "[1.55] Средняя (3-5 трен/нед)" },
+            { v: "1.725", t: "[1.725] Высокая (6-7 трен/нед)" }
+        ];
+
+        // --- STATE ---
+        const state = {
+            percents: { protein: 99, fats: 127, veg: 120, carbs: 0 },
+            selected: { protein: [], fats: [], veg: [], carbs: [], micro: [] },
+            needsCarbsMode: false,
+            carbReasons: { activity: false, cold: false, stress: false, depletion: false },
+            mindful: [false, false, false],
+            tab: "build",
+            profile: { sex: "female", age: 30, height: 165, weight: 65, activity: 1.35, calc: null },
+            history: []
+        };
+
+        // --- RENDERING HELPERS (Logic from 8.html) ---
+        function getTotal() { const p = state.percents; return (p.protein + p.fats + p.veg + p.carbs) || 1; }
+        function normalizedPercents() {
+            const t = getTotal();
+            return {
+                protein: Math.round((state.percents.protein / t) * 100),
+                fats: Math.round((state.percents.fats / t) * 100),
+                veg: Math.round((state.percents.veg / t) * 100),
+                carbs: Math.max(0, 100 - (Math.round((state.percents.protein / t) * 100) + Math.round((state.percents.fats / t) * 100) + Math.round((state.percents.veg / t) * 100)))
+            };
+        }
+        function carbSuggested() {
+            const reasons = Object.values(state.carbReasons).filter(Boolean).length;
+            if (!state.needsCarbsMode) return { should: false, suggestion: 0, reasons };
+            return { should: reasons > 0, suggestion: reasons === 0 ? 0 : reasons === 1 ? 30 : 45, reasons };
+        }
+        function getTargets() {
+            const calc = state.profile.calc;
+            return {
+                protein: calc ? { min: calc.P_from, max: calc.P_to } : { min: 90, max: 105 },
+                fats: calc ? { min: calc.F_from, max: calc.F_to } : { min: 75, max: 90 },
+                carbs: calc ? { min: calc.C_from, max: calc.C_to } : { min: 0, max: 60 },
+                veg: CATEGORIES.veg.targetStatic
+            };
+        }
+        function scoreFromRange(v, min, max) {
+            if (inRange(v, min, max)) return 100;
+            const dist = v < min ? (min - v) : (v - max);
+            return clamp(100 - dist * 2, 0, 100);
+        }
+        function balanceScore() {
+            const t = getTargets();
+            const p = state.percents;     // raw grams used in 8.html scoring logic
+            let sP = scoreFromRange(p.protein, t.protein.min, t.protein.max);
+            let sF = scoreFromRange(p.fats, t.fats.min, t.fats.max);
+            let sV = scoreFromRange(p.veg, t.veg.min, t.veg.max);
+            let sC = 100;
+            if (state.needsCarbsMode) {
+                const cs = carbSuggested();
+                sC = (cs.suggestion === 0 && p.carbs === 0) ? 100 : scoreFromRange(p.carbs, Math.max(0, cs.suggestion - 15), cs.suggestion + 15);
+            } else {
+                sC = scoreFromRange(p.carbs, 0, t.carbs.max || 60);
+            }
+            return Math.round((sP + sF + sV + sC) / 4);
+        }
+        function completenessScore() {
+            const s = state.selected;
+            const hP = s.protein.length > 0, hF = s.fats.length > 0, hV = s.veg.length > 0, hM = s.micro.length > 0;
+            const cs = carbSuggested();
+            const carOK = !state.needsCarbsMode || (cs.suggestion === 0 ? s.carbs.length === 0 : s.carbs.length > 0);
+            const mindOK = state.mindful.filter(Boolean).length >= 2;
+            const total = (hP ? 1 : 0) + (hF ? 1 : 0) + (hV ? 1 : 0) + (hM ? 1 : 0) + (carOK ? 1 : 0) + (mindOK ? 1 : 0);
+            return { score: Math.round((total / 6) * 100), flags: { hP, hF, hV, hM, carOK, mindOK } };
+        }
+        function overallScore() { return Math.round(balanceScore() * 0.6 + completenessScore().score * 0.4); }
+
+        function summaryText() {
+            const n = normalizedPercents();
+            const s = state.selected;
+            const sel = (k) => s[k].length ? s[k].join(', ') : '—';
+
+            return `📅 Тарелка Митохондрий (${new Date().toLocaleDateString()})
+🏆 Оценка: ${overallScore()}/100
+
+Баланс:
+• Белки: ${state.percents.protein}г (${n.protein}%)
+• Жиры: ${state.percents.fats}г (${n.fats}%)
+• Овощи: ${state.percents.veg}г (${n.veg}%)
+• Углеводы: ${state.percents.carbs}г (${n.carbs}%)
+
+Состав:
+🍖 ${sel('protein')}
+🥑 ${sel('fats')}
+🥗 ${sel('veg')}
+${state.percents.carbs > 0 ? '🥔 ' + sel('carbs') + '\n' : ''}🧪 ${sel('micro')}
+🧠 Осознанность: ${state.mindful.filter(Boolean).length}/3`;
+        }
+
+        // --- RENDERERS ---
+        function renderAll() {
+            renderProfile();
+            renderSliders();
+            renderPickers();
+            renderMind();
+            renderPie();
+            renderReview();
+            renderHistory();
+        }
+
+        function renderSliders() {
+            const el = document.getElementById('sliders'); el.innerHTML = '';
+            const t = getTargets();
+            ['protein', 'fats', 'veg', 'carbs'].forEach(k => {
+                const grp = document.createElement('div'); grp.className = 'field';
+                const cat = CATEGORIES[k];
+                // target text logic
+                let tt = '';
+                if (k === 'protein') tt = `${t.protein.min}-${t.protein.max}`;
+                if (k === 'fats') tt = `${t.fats.min}-${t.fats.max}`;
+                if (k === 'veg') tt = `${t.veg.min}-${t.veg.max}`;
+                if (k === 'carbs') {
+                    if (state.needsCarbsMode) {
+                        const cs = carbSuggested();
+                        tt = cs.suggestion === 0 ? "0-30" : `${cs.suggestion - 15}-${cs.suggestion + 15}`;
+                    } else { tt = `${t.carbs.min}-${t.carbs.max}`; }
+                }
+
+                grp.innerHTML = `
+                <div class="top">
+                    <div class="name"><strong>${cat.title}</strong><span class="hint">${cat.hint}</span></div>
+                    <div><span class="badge">сейчас: ${normalizedPercents()[k]}%</span><span class="badge soft">цель: ${tt}</span></div>
+                </div>`;
+
+                const sl = document.createElement('div'); sl.className = 'sl';
+
+                const rng = document.createElement('input'); rng.type = 'range'; rng.min = 0; rng.max = 300; rng.value = state.percents[k];
+                rng.oninput = (e) => { state.percents[k] = +e.target.value; renderAll(); saveState(); };
+
+                const num = document.createElement('input'); num.type = 'number'; num.min = 0; num.max = 300; num.value = state.percents[k];
+                num.oninput = (e) => { state.percents[k] = +e.target.value; renderAll(); saveState(); };
+
+                sl.append(rng, num, document.createTextNode(' гр'));
+                grp.appendChild(sl);
+                el.appendChild(grp);
+            });
+
+            // Carb switch
+            const sw = document.createElement('div'); sw.className = 'switch';
+            sw.innerHTML = `<div><div style="font-weight:700">Режим «Углеводы по потребности»</div><div class="hint">Включите при стрессе/спорте</div></div>`;
+            const chk = document.createElement('input'); chk.type = 'checkbox'; chk.checked = state.needsCarbsMode;
+            chk.onchange = (e) => { state.needsCarbsMode = e.target.checked; renderAll(); saveState(); };
+            sw.appendChild(chk);
+            el.appendChild(sw);
+
+            if (state.needsCarbsMode) {
+                const rBox = document.createElement('div'); rBox.className = 'two'; rBox.style.marginTop = '10px';
+                const reasons = [
+                    { k: 'activity', l: 'Активность', s: 'Нужна быстрая энергия' },
+                    { k: 'cold', l: 'Холод', s: 'Термогенез' },
+                    { k: 'stress', l: 'Стресс', s: 'Риск ↑ кортизола' },
+                    { k: 'depletion', l: 'Истощение', s: 'Восстановление' }
+                ];
+                reasons.forEach(r => {
+                    const b = document.createElement('div'); b.className = 'note note-clickable ' + (state.carbReasons[r.k] ? 'active' : '');
+                    b.innerHTML = `<div class="t">${r.l}</div><p>${r.s}</p>`;
+                    b.onclick = () => { state.carbReasons[r.k] = !state.carbReasons[r.k]; renderAll(); saveState(); };
+                    rBox.appendChild(b);
+                });
+                el.appendChild(rBox);
+            }
+        }
+
+        function renderPickers() {
+            const el = document.getElementById('pickers'); el.innerHTML = '';
+            ['protein', 'fats', 'veg', 'carbs', 'micro'].forEach(k => {
+                const cat = CATEGORIES[k];
+                const d = document.createElement('div'); d.className = 'card'; d.style.padding = '16px'; d.style.boxShadow = 'none'; d.style.border = '1px solid var(--border)';
+                d.innerHTML = `<div class="hd"><h2 style="font-size:15px; margin:0">${cat.title}</h2><p class="hint">${cat.hint}</p></div>`;
+                const chips = document.createElement('div'); chips.className = 'chips';
+                cat.options.forEach(opt => {
+                    const c = document.createElement('div'); c.className = 'chip ' + (state.selected[k].includes(opt) ? 'on' : '');
+                    c.textContent = opt;
+                    c.onclick = () => {
+                        const idx = state.selected[k].indexOf(opt);
+                        if (idx >= 0) state.selected[k].splice(idx, 1); else state.selected[k].push(opt);
+                        renderAll(); saveState();
+                    };
+                    chips.appendChild(c);
+                });
+                d.appendChild(chips); el.appendChild(d);
+            });
+        }
+
+        function renderMind() {
+            const mindBoxEl = document.getElementById('mindBox');
+            mindBoxEl.innerHTML = "";
+            QUESTIONS.forEach((q, i) => {
+                const b = document.createElement("div");
+                b.className = "note note-clickable";
+                b.classList.toggle('active', state.mindful[i]);
+                const sub = i === 0
+                    ? "Спокойное питание улучшает пищеварение и снижает гормон стресса."
+                    : i === 1
+                        ? "Жевание — сигнал ЖКТ и поджелудочной: ферменты включаются вовремя."
+                        : "Контакт с телом снижает тягу к сладкому и импульсивные перекусы.";
+                b.innerHTML = `<div class="t">${q}</div><p>${sub}</p>`;
+                b.onclick = () => {
+                    state.mindful[i] = !state.mindful[i];
+                    renderAll();
+                    saveState();
+                };
+                mindBoxEl.appendChild(b);
+            });
+
+            const count = state.mindful.filter(Boolean).length;
+            const prog = document.createElement("div");
+            prog.className = "note";
+            prog.style.marginTop = "10px";
+            prog.style.cursor = "default"; // Not clickable
+
+            const badgeColor = count >= 2 ? 'background:rgba(85,239,196,0.2); color:#00695c' : 'background:rgba(255,118,117,0.1); color:#d63031';
+            const barColor = count >= 2 ? '#00b894' : '#ff7675';
+
+            prog.innerHTML = `
+                <div class="row">
+                    <b>Прогресс осознанности</b>
+                    <span class="badge" style="${badgeColor}">${count >= 2 ? 'Отлично' : 'Можно усилить'}</span>
+                </div>
+                <p>${count}/3 отмечено (рекомендуем ≥ 2)</p>
+                <div class="progress" style="margin-top:8px; height:8px; background:rgba(0,0,0,0.05); border-radius:4px; overflow:hidden">
+                    <div class="bar" style="width:${(count / 3) * 100}%; height:100%; background:${barColor}; transition:width 0.3s"></div>
+                </div>`;
+            mindBoxEl.appendChild(prog);
+        }
+
+        function renderPie() {
+            const n = normalizedPercents();
+            // Colors from vars
+            const deg = (v) => (v / 100) * 360;
+            const P = deg(n.protein), F = deg(n.fats), V = deg(n.veg), C = deg(n.carbs);
+            document.getElementById('pie').style.background = `conic-gradient(
+                var(--col-protein) 0deg ${P}deg,
+                var(--col-fats) ${P}deg ${P + F}deg,
+                var(--col-veg) ${P + F}deg ${P + F + V}deg,
+                var(--col-carbs) ${P + F + V}deg 360deg
+            )`;
+
+            const leg = document.getElementById('legend'); leg.innerHTML = '';
+            [
+                { l: 'Белки', v: n.protein, c: 'var(--col-protein)' },
+                { l: 'Жиры', v: n.fats, c: 'var(--col-fats)' },
+                { l: 'Овощи', v: n.veg, c: 'var(--col-veg)' },
+                { l: 'Углеводы', v: n.carbs, c: 'var(--col-carbs)' }
+            ].forEach(x => {
+                const i = document.createElement('div'); i.className = 'it';
+                i.innerHTML = `<div><span class="dot" style="background:${x.c}"></span>${x.l}</div><b>${x.v}%</b>`;
+                leg.appendChild(i);
+            });
+        }
+
+        function renderReview() {
+            document.getElementById('overallScore').textContent = overallScore() + '/100';
+            document.getElementById('overallBar').style.width = overallScore() + '%';
+            document.getElementById('balanceScore').textContent = balanceScore() + '/100';
+            document.getElementById('completeScore').textContent = completenessScore().score + '/100';
+
+            const list = document.getElementById('checklist'); list.innerHTML = '';
+            const cf = completenessScore().flags;
+            const items = [
+                { ok: cf.hP, t: 'Белок' }, { ok: cf.hF, t: 'Жиры' }, { ok: cf.hV, t: 'Овощи' },
+                { ok: cf.hM, t: 'Микроэлементы' }, { ok: cf.carOK, t: 'Режим углеводов' }, { ok: cf.mindOK, t: 'Осознанность' }
+            ];
+            items.forEach(x => {
+                const d = document.createElement('div'); d.style.fontSize = '13px'; d.style.margin = '4px 0';
+                d.innerHTML = (x.ok ? '✅ ' : '⚠️ ') + x.t;
+                list.appendChild(d);
+            });
+
+            document.getElementById('summary').textContent = summaryText();
+        }
+
+        function renderProfile() {
+            const W = +document.getElementById('weight').value, H = +document.getElementById('height').value,
+                Age = +document.getElementById('age').value, Act = +document.getElementById('activity').value,
+                Sex = document.getElementById('sex').value;
+
+            state.profile = { weight: W, height: H, age: Age, activity: Act, sex: Sex };
+            const c = calcKBJU({ W, H, Age, Act, Sex });
+            state.profile.calc = c;
+
+            document.getElementById('bmiOut').textContent = c.BMI + ' [' + bmiLabel(c.BMI) + ']';
+            document.getElementById('kMaintOut').textContent = c.K_maint;
+
+            document.getElementById('macroText').textContent =
+                `Ваш индекс массы тела: ${c.BMI} [${bmiLabel(c.BMI)}]
+Ваш базовый метаболизм (основной обмен): ${c.BMR} ккал
+Ваша норма калорий для поддержания веса: ${c.K_maint} ккал
+Дефицит калорий 20%: ${c.K_from} ккал
+Дефицит калорий 15%: ${c.K_to} ккал
+Если голодно: до ${c.K_hunger} ккал
+
+Ваши нормы белков, жиров и углеводов:
+Белки: от ${c.P_from} до ${c.P_to} г
+Жиры: от ${c.F_from} до ${c.F_to} г
+Углеводы: от ${c.C_from} до ${c.C_to} г`;
+        }
+
+        // --- HISTORY ---
+        function saveToHistory() {
+            const rec = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                score: overallScore(),
+                text: summaryText()
+            };
+            state.history.unshift(rec);
+            saveState();
+            renderHistory();
+            showToast('Сохранено в историю');
+        }
+        function renderHistory() {
+            const c = document.getElementById('history-container'); c.innerHTML = '';
+            if (!state.history.length) { c.innerHTML = '<div style="color:var(--muted); text-align:center; padding:20px">Нет записей</div>'; return; }
+            state.history.forEach(h => {
+                const el = document.createElement('div'); el.className = 'history-item';
+                el.innerHTML = `
+                <div>
+                   <div class="h-date">${h.date}</div>
+                   <div class="h-score">Оценка: ${h.score}</div>
+                </div>
+                <button onclick="copyStr('${encodeURIComponent(h.text)}')" style="font-size:12px; padding:6px 12px">Копия</button>
+                `;
+                c.appendChild(el);
+            });
+        }
+        function copyStr(enc) {
+            navigator.clipboard.writeText(decodeURIComponent(enc));
+            showToast('Скопировано');
+        }
+
+        // --- APP STATE ---
+        function saveState() { localStorage.setItem('mito_8_3', JSON.stringify(state)); }
+        function loadState() {
+            const s = localStorage.getItem('mito_8_3');
+            if (s) { Object.assign(state, JSON.parse(s)); }
+            // Populate inputs
+            document.getElementById('weight').value = state.profile.weight;
+            document.getElementById('height').value = state.profile.height;
+            document.getElementById('age').value = state.profile.age;
+            document.getElementById('sex').value = state.profile.sex;
+            // Activity Dropdown
+            const act = ACT_DATA.find(x => x.v == state.profile.activity) || ACT_DATA[1];
+            updateActUI(act.v, act.t);
+        }
+
+        // --- UI BINDING ---
+        // Activity Dropdown Logic (Fixed)
+        const actTrigger = document.getElementById('actTrigger');
+        const actOptions = document.getElementById('actOptions');
+        const actInput = document.getElementById('activity');
+
+        function updateActUI(val, text) {
+            actInput.value = val;
+            // Shorten like in 8.html: "[1.2] ... " -> "[1.2]"
+            actTrigger.textContent = text.split(']')[0] + ']';
+        }
+
+        // Init activity
+        actTrigger.onclick = (e) => { e.stopPropagation(); actOptions.classList.toggle('show'); };
+        document.addEventListener('click', () => actOptions.classList.remove('show'));
+
+        ACT_DATA.forEach(d => {
+            const i = document.createElement('div'); i.className = 'act-item';
+            i.innerHTML = `<span class="act-item-text">${d.t}</span>
+                           <div class="act-tooltip">${d.t}</div>`;
+            i.onclick = () => { updateActUI(d.v, d.t); renderAll(); saveState(); };
+            actOptions.appendChild(i);
+        });
+
+        // Tabs
+        document.querySelectorAll('.tab').forEach(b => {
+            b.onclick = () => {
+                document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+                document.querySelectorAll('.tabpane').forEach(x => x.classList.remove('active'));
+                b.classList.add('active');
+                document.getElementById('tab-' + b.dataset.tab).classList.add('active');
+                state.tab = b.dataset.tab;
+            };
+        });
+
+        // Buttons
+        document.getElementById('copyBtn').onclick = () => { navigator.clipboard.writeText(summaryText()); showToast('Скопировано'); };
+        document.getElementById('saveBtn').onclick = saveToHistory;
+        document.getElementById('clearHistBtn').onclick = () => { if (confirm('Очистить?')) { state.history = []; saveState(); renderHistory(); } };
+        document.getElementById('resetBtn').onclick = () => {
+            if (confirm('Сбросить?')) {
+                state.percents = { protein: 99, fats: 127, veg: 120, carbs: 0 };
+                state.selected = { protein: [], fats: [], veg: [], carbs: [], micro: [] };
+                state.mindful = [false, false, false];
+                renderAll(); saveState();
+            }
+        };
+
+        // Inputs
+        ['sex', 'age', 'height', 'weight'].forEach(id => {
+            document.getElementById(id).onchange = renderAll;
+            document.getElementById(id).oninput = renderAll;
+        });
+
+        function showToast(m) {
+            const t = document.getElementById('toast'); t.textContent = m; t.classList.add('visible');
+            setTimeout(() => t.classList.remove('visible'), 2000);
+        }
+
+        // ENTRY
+        loadState();
+        renderAll();
+
+    </script>
+</body>
+
+</html>
